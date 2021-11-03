@@ -1,8 +1,5 @@
 #include <stdio.h>
-#include <math.h>
-
-const int TRUE = 1;
-const int FALSE = 0;
+#include <algorithm>
 
 enum kind
   {
@@ -15,7 +12,7 @@ enum kind
 struct Set {
   kind k;
   int rank;
-  int (*in)(struct Set*);
+  std::function<bool (struct Set*)> in;
   Set* x;
   Set* y;
 };
@@ -25,11 +22,15 @@ Set emptyset
    EMPTYSET,
    0,
    [] (Set* sp) {
-     return FALSE;  
+     return false;  
    },
    NULL,
    NULL
 };
+
+bool seteq(Set* x, Set* y) {
+  return false; //Todo
+}
 
 Set numberset
 = {
@@ -37,9 +38,9 @@ Set numberset
    -1,
    [] (Set* sp) {
      if (sp->k == EMPTYSET)
-       return TRUE;
+       return true;
      else
-       return FALSE; //Todo
+       return false; //Todo
    },
    NULL,
    NULL
@@ -49,8 +50,8 @@ struct Set unionset(Set* x) {
   Set set = {
     UNIONSET,
     (x->rank > 0) ? x->rank - 1 : x->rank,
-    [] (Set* sp) {
-      return FALSE; //Todo
+    [x] (Set* sp) {
+      return false; //Todo
     },
     x,
     NULL
@@ -61,29 +62,19 @@ struct Set unionset(Set* x) {
 
 struct Set pairset(Set* x, Set* y) {
   Set set = {
-             PAIRSET,
-             max(x->rank, y->rank) + 1,
-             [] (Set* sp) {
-               return FALSE; //Todo
-             },
-             x,
-             y
+    PAIRSET,
+    std::max(x->rank, y->rank) + 1,
+    [x ,y] (Set* sp) {
+      return sp == x || sp == y; //Todo
+    },
+    x,
+    y
   };
 
   return set;
 }
 
 
-int prompt(char* line) {
-  int ret;
-  printf("set-lang>");
-  ret = scanf("%s", line);
-  return ret;
-}
-
 int main() {
-  char line[100];
-  while(prompt(line) >= 0) {
-    printf("%s\n", line);
-  }
+  printf("main\n");
 }
