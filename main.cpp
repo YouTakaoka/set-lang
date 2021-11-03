@@ -6,13 +6,15 @@ enum kind
    EMPTYSET,
    NUMBERSET,
    UNIONSET,
-   PAIRSET
+   PAIRSET,
+   SETMINUS,
+   POWERSET
   };
 
 struct Set {
   kind k;
   int rank;
-  std::function<bool (struct Set*)> in;
+  std::function<bool (struct Set*)> contains;
   Set* x;
   Set* y;
 };
@@ -28,8 +30,36 @@ Set emptyset
    NULL
 };
 
+Set setminus(Set* x, Set* y) {
+  return Set {
+    SETMINUS,
+    x->rank, //TO FIX
+    [x, y] (Set* sp) {
+      return x->contains(sp) && !y->contains(sp);
+    },
+    x,
+    y
+  };
+}
+
+bool isempty(Set* x) {
+  return x->rank == 0;
+}
+
+Set powerset(Set* x) {
+  return Set {
+    POWERSET,
+    x->rank + 1,
+    [x] (Set* sp) {
+      return setminus(sp, x).rank == 0;
+    },
+    x,
+    NULL
+  };
+};
+
 bool seteq(Set* x, Set* y) {
-  return false; //Todo
+  return powerset(x).contains(y) && powerset(y).contains(x);
 }
 
 Set numberset
@@ -46,8 +76,8 @@ Set numberset
    NULL
 };
 
-struct Set unionset(Set* x) {
-  Set set = {
+Set unionset(Set* x) {
+  return Set {
     UNIONSET,
     (x->rank > 0) ? x->rank - 1 : x->rank,
     [x] (Set* sp) {
@@ -56,22 +86,18 @@ struct Set unionset(Set* x) {
     x,
     NULL
   };
-
-  return set;
 }
 
-struct Set pairset(Set* x, Set* y) {
-  Set set = {
+Set pairset(Set* x, Set* y) {
+  return Set {
     PAIRSET,
     std::max(x->rank, y->rank) + 1,
     [x ,y] (Set* sp) {
-      return sp == x || sp == y; //Todo
+      return seteq(sp, x) || seteq(sp, y);
     },
     x,
     y
   };
-
-  return set;
 }
 
 
