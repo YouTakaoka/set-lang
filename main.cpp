@@ -1,4 +1,5 @@
-#include <stdio.h>
+#include <iostream>
+#include <functional>
 #include <algorithm>
 
 enum kind
@@ -62,19 +63,17 @@ bool seteq(Set* x, Set* y) {
   return powerset(x).contains(y) && powerset(y).contains(x);
 }
 
-Set numberset
-= {
-   NUMBERSET,
-   -1,
-   [] (Set* sp) {
-     if (sp->k == EMPTYSET)
-       return true;
-     else
-       return false; //Todo
-   },
-   NULL,
-   NULL
-};
+Set pairset(Set* x, Set* y) {
+  return Set {
+    PAIRSET,
+    std::max(x->rank, y->rank) + 1,
+    [x ,y] (Set* sp) {
+      return seteq(sp, x) || seteq(sp, y);
+    },
+    x,
+    y
+  };
+}
 
 Set unionset(Set* x) {
   return Set {
@@ -88,18 +87,29 @@ Set unionset(Set* x) {
   };
 }
 
-Set pairset(Set* x, Set* y) {
-  return Set {
-    PAIRSET,
-    std::max(x->rank, y->rank) + 1,
-    [x ,y] (Set* sp) {
-      return seteq(sp, x) || seteq(sp, y);
-    },
-    x,
-    y
-  };
+Set succ(Set* x) {
+  Set p1 = pairset(x, x);
+  Set p2 = pairset(x, &p1);
+  return unionset(&p2);
 }
 
+Set numberset
+= {
+   NUMBERSET,
+   -1,
+   [] (Set* sp) {
+     if (isempty(sp))
+       return true;
+     else if (sp->rank == -1)
+       return false;
+
+     Set u = unionset(sp);
+     Set s = succ(&u);
+     return seteq(sp, &s) && numberset.contains(&u);     
+   },
+   NULL,
+   NULL
+};
 
 int main() {
   printf("main\n");
