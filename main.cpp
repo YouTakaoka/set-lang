@@ -9,7 +9,8 @@ enum kind
    UNIONSET,
    PAIRSET,
    SETMINUS,
-   POWERSET
+   POWERSET,
+   MIDSET
   };
 
 struct Set {
@@ -75,12 +76,25 @@ Set pairset(Set* x, Set* y) {
   };
 }
 
+Set midset(Set* x, Set* y) {
+  return Set {
+    MIDSET,
+    y->rank, //TO FIX
+    [x, y] (Set* sp) {
+      return x->contains(sp) && y->contains(sp);
+    },
+    x,
+    y
+  };
+}
+
 Set unionset(Set* x) {
   return Set {
     UNIONSET,
     (x->rank > 0) ? x->rank - 1 : x->rank,
     [x] (Set* sp) {
-      return false; //Todo
+      Set m = midset(sp, x);
+      return !isempty(&m);
     },
     x,
     NULL
