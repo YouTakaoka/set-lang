@@ -5,3 +5,12 @@
 ・unionはsuccを定義するのに必要
 
 ・問題はsetminusとmidsetのrankの計算
+
+まずはsetminusについて見てみよう。setminus(x,y)について、x,yのいずれかが有限階であれば問題はない。問題は両方が無限階の集合であった場合である。
+この場合は、xを有限階に制限したものをx_nとして
+union {setminus(x_n,y) | n in N}
+とすればよい。
+
+midset(x,y)も同様に、yが有限階であれば問題はないから、
+union {midset(x,y_n) | n in N}
+とすればよい。
