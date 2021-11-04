@@ -2,4 +2,6 @@
 ・そのためにはpowも必要
 ・さらにsetminusが必要(ということは本来的にはimageが必要) <- ここでrankが計算できなくなって詰む
 ・pairはないと算術が成り立たないので必要
-・じゃあunionは？
+・unionはsuccを定義するのに必要
+
+・問題はsetminusとmidsetのrankの計算
